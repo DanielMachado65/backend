@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 import { File } from './entities/file.entity';
 import { Request } from 'express';
 import * as Multer from 'multer';
@@ -12,10 +10,7 @@ import * as Papa from 'papaparse';
 
 @Injectable()
 export class FileUploadService {
-  constructor(
-    @InjectRepository(File)
-    private fileRepository: Repository<File>,
-  ) {}
+  constructor() {}
 
   async exec(file: Multer.File) {
     const fileExtName = extname(file.originalname).toLowerCase();
@@ -31,13 +26,12 @@ export class FileUploadService {
 
   async save(file: Multer.File, req: Request) {
     const arquivo = new File();
-    arquivo.fileName = file.filename;
+    arquivo.filename = file.filename;
     arquivo.contentLength = file.size;
     arquivo.contentType = file.mimetype;
     arquivo.url = `${req.protocol}://${req.get('host')}/files/${file.filename}`;
 
     try {
-      return await this.fileRepository.save(arquivo);
     } catch (err) {
       console.error('save', err);
     }
@@ -59,9 +53,7 @@ export class FileUploadService {
   }
 
   processCSVFile(fileBuffer: Buffer) {
-    const fileContent = fileBuffer.toString('utf8');
-
-    Papa.parse(fileContent, {
+    Papa.parse(fileBuffer, {
       complete: (result) => {
         const jsonData = result.data;
         // jsonData é um array de arrays ou objetos, dependendo da configuração

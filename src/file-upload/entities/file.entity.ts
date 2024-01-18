@@ -1,19 +1,27 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { ModelDefinition, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import * as mongoose from 'mongoose';
 
-@Entity()
+export type FileDocument = File & mongoose.Document;
+
+@Schema()
 export class File {
-  @PrimaryGeneratedColumn('increment')
-  id: number;
+  @Prop()
+  filename: string;
 
-  @Column({ nullable: false, unique: true })
-  fileName: string;
-
-  @Column({ nullable: false })
+  @Prop()
   contentLength: number;
 
-  @Column({ nullable: false })
+  @Prop()
   contentType: string;
 
-  @Column({ nullable: false })
+  @Prop()
   url: string;
 }
+
+export const mFileSchema: mongoose.Schema<FileDocument> =
+  SchemaFactory.createForClass(File);
+
+export const mFileModelDef: ModelDefinition = {
+  name: File.name,
+  schema: mFileSchema,
+};
