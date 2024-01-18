@@ -27,32 +27,32 @@ export class FileUploadController {
     }
   }
 
-  processXLSXFile(file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = e.target.result;
-      const workbook = XLSX.read(data, { type: 'binary' });
+  processXLSXFile(fileBuffer: Buffer) {
+    const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
 
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
+    // Supondo que você quer ler a primeira planilha
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
 
-      // Converte a planilha para JSON
-      const json = XLSX.utils.sheet_to_json(worksheet);
+    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    console.log('xlsx', jsonData);
 
-      console.log('Dados da Planilha XLSX:', json);
-    };
-    reader.readAsBinaryString(file);
+    // Agora jsonData é um array de objetos, cada objeto representando uma linha da planilha
+
+    // Processamento adicional e salvar no banco de dados
   }
 
-  processCSVFile(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+  processCSVFile(fileBuffer: Buffer) {
+    const fileContent = fileBuffer.toString('utf8');
 
-    Papa.parse(file, {
-      complete: (results) => {
-        console.log('Dados do CSV:', results.data);
+    Papa.parse(fileContent, {
+      complete: (result) => {
+        const jsonData = result.data;
+        // jsonData é um array de arrays ou objetos, dependendo da configuração
+        // Processamento adicional e salvar no banco de dados
+        console.log('csv', jsonData);
       },
-      header: true,
+      header: true, // Se o CSV tem cabeçalhos, os objetos terão chaves correspondentes
       skipEmptyLines: true,
       dynamicTyping: true,
     });
