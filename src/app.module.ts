@@ -16,7 +16,6 @@ import { ConfigModule } from '@nestjs/config';
 })
 export class AppModule {
   constructor() {
-    console.log('MongoDB URI:', process.env.MONGO_URI);
     console.log('AppModule loaded');
   }
 }
