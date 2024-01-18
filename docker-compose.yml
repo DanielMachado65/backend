@@ -6,6 +6,7 @@ services:
     container_name: mongodb
     volumes:
       - mongodb-data:/data/db
+      - ./init-db.js:/docker-entrypoint-initdb.d/init-db.js
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=senha
