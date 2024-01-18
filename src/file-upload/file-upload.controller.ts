@@ -3,7 +3,6 @@ import {
   Post,
   UseInterceptors,
   UploadedFile,
-  BadRequestException,
   Req,
 } from '@nestjs/common';
 import * as Multer from 'multer';
@@ -19,17 +18,6 @@ export class FileUploadController {
   @Post()
   @UseInterceptors(FileInterceptor('files'))
   async uploadFile(@UploadedFile() file: Multer.File, @Req() req: Request) {
-    if (!file) {
-      throw new BadRequestException('Arquivo não enviado.');
-    }
-
-    try {
-      const arquivo = await this.fileUploadService.save(file, req);
-
-      await this.fileUploadService.exec(file);
-      return arquivo;
-    } catch (error) {
-      console.error(error);
-    }
+    return await this.fileUploadService.upload(file, req);
   }
 }

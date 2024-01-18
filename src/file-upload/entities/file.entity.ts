@@ -1,19 +1,18 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, ObjectIdColumn } from 'typeorm';
 
-@Entity()
-export class File {
-  @PrimaryColumn()
-  id: string;
+@Entity('file')
+export class FileEntity {
+  @ObjectIdColumn({ unique: true }) id: string;
 
-  @Column({ nullable: false })
-  fileName: string;
+  @Column({ nullable: false }) fileName: string;
+  @Column({ nullable: false }) contentLength: number;
+  @Column({ nullable: false }) contentType: string;
+  @Column({ nullable: false }) url: string;
 
-  @Column({ nullable: false })
-  contentLength: number;
+  // salvar o json data
+  @Column({ type: 'jsonb' }) data: any;
 
-  @Column({ nullable: false })
-  contentType: string;
-
-  @Column({ nullable: false })
-  url: string;
+  constructor(file?: Partial<FileEntity>) {
+    Object.assign(this, file);
+  }
 }
