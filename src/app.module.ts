@@ -4,10 +4,12 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { MetricsModule } from './metrics/metrics.module';
+import { FileUploadModule } from './file-upload/file-upload.module';
 
 @Module({
   imports: [
     MetricsModule,
+    FileUploadModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
