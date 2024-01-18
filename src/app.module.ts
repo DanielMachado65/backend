@@ -19,7 +19,6 @@ import { join } from 'path';
       url: process.env.MONGO_URI,
       entities: [join(__dirname, '**/**.entity{.ts,.js}')],
       synchronize: false,
-      useNewUrlParser: true,
       logging: true,
     }),
   ],
