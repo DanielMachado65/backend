@@ -1,27 +1,19 @@
-import { ModelDefinition, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import * as mongoose from 'mongoose';
+import { Entity, Column, ObjectIdColumn } from 'typeorm';
 
-export type FileDocument = File & mongoose.Document;
-
-@Schema()
+@Entity()
 export class File {
-  @Prop()
-  filename: string;
+  @ObjectIdColumn()
+  id: number;
 
-  @Prop()
+  @Column({ nullable: false, unique: true })
+  fileName: string;
+
+  @Column({ nullable: false })
   contentLength: number;
 
-  @Prop()
+  @Column({ nullable: false })
   contentType: string;
 
-  @Prop()
+  @Column({ nullable: false })
   url: string;
 }
-
-export const mFileSchema: mongoose.Schema<FileDocument> =
-  SchemaFactory.createForClass(File);
-
-export const mFileModelDef: ModelDefinition = {
-  name: File.name,
-  schema: mFileSchema,
-};

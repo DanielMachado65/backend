@@ -9,7 +9,6 @@ import {
 import * as Multer from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
 
-import multerConfig from './multer-config';
 import { FileUploadService } from './file-upload.service';
 import { Request } from 'express';
 
@@ -18,7 +17,7 @@ export class FileUploadController {
   constructor(private readonly fileUploadService: FileUploadService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('files', multerConfig))
+  @UseInterceptors(FileInterceptor('files'))
   async uploadFile(@UploadedFile() file: Multer.File, @Req() req: Request) {
     if (!file) {
       throw new BadRequestException('Arquivo não enviado.');

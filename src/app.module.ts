@@ -4,10 +4,8 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MetricsModule } from './metrics/metrics.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
-import { ModelDefinition, MongooseModule } from '@nestjs/mongoose';
-import { mFileModelDef } from './file-upload/entities/file.entity';
-
-const modelDefinitions: ReadonlyArray<ModelDefinition> = [mFileModelDef];
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -16,17 +14,14 @@ const modelDefinitions: ReadonlyArray<ModelDefinition> = [mFileModelDef];
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRootAsync({
-      useFactory: async () => ({
-        uri: 'mongodb://root:senha@localhost:27017',
-      }),
+    TypeOrmModule.forRoot({
+      type: 'mongodb',
+      url: process.env.MONGO_URL,
+      entities: [join(__dirname, '**/**.entity{.ts,.js}')],
+      autoLoadEntities: true,
+      synchronize: true,
+      logging: true,
     }),
-    MongooseModule.forFeatureAsync(
-      modelDefinitions.map((modelDefinition) => ({
-        name: modelDefinition.name,
-        useFactory: () => modelDefinition.schema,
-      })),
-    ),
   ],
   controllers: [AppController],
   providers: [AppService],
