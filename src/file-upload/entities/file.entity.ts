@@ -1,11 +1,11 @@
-import { Entity, Column, ObjectIdColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class File {
-  @ObjectIdColumn()
-  id: number;
+  @PrimaryColumn()
+  id: string;
 
-  @Column({ nullable: false, unique: true })
+  @Column({ nullable: false })
   fileName: string;
 
   @Column({ nullable: false })
