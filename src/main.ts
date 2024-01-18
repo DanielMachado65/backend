@@ -6,10 +6,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('Exemplo API')
-    .setDescription('Descrição da API')
+    .setTitle('Interview for Copybase API')
+    .setDescription(
+      'The ideia for this api is to provide a way to upload files and calculate MRR and Churn Rate',
+    )
     .setVersion('1.0')
-    .addTag('exemplo')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
