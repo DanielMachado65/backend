@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { MetricsModule } from './metrics/metrics.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -13,7 +14,14 @@ import { FileUploadModule } from './file-upload/file-upload.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot(process.env.MONGO_URI),
+    TypeOrmModule.forRoot({
+      type: 'mongodb',
+      url: process.env.MONGO_URI,
+      entities: [join(__dirname, '**/**.entity{.ts,.js}')],
+      synchronize: false,
+      useNewUrlParser: true,
+      logging: true,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
