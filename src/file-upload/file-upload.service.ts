@@ -26,8 +26,6 @@ export class FileUploadService {
 
     const fileEntity = await this.save(file, req);
 
-    console.log('fileEntity', fileEntity, fileExtName);
-
     if (fileExtName === '.xlsx') {
       await this._processXLSXFile(fileEntity, file.buffer);
     } else if (fileExtName === '.csv') {
