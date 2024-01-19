@@ -9,9 +9,6 @@ export class MetricsController {
 
   @Get('/:fileId')
   async getAllMetrics(@Param('fileId') fileId: string) {
-    return {
-      mrrPorMes: await this.metricsService.calculateMRR(fileId),
-      churn: await this.metricsService.calculateChurnRate(fileId),
-    };
+    return await this.metricsService.getMetrics(fileId);
   }
 }

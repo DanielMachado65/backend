@@ -11,18 +11,28 @@ export class MetricsService {
     private _fileRepository: MongoRepository<FileEntity>,
   ) {}
 
-  // Este método deve ser implementado para realizar os cálculos
-  async calculateMRR(fileId: string) {
-    const { data }: FileEntity = await this._fileRepository.findOne({
+  async getMetrics(fileId: string) {
+    const file: FileEntity = await this._fileRepository.findOne({
       where: {
         _id: new ObjectId(fileId),
       },
     });
 
-    if (!data) {
-      return {};
+    if (!file.data) {
+      throw new Error('Arquivo não processado');
     }
 
+    const mrr = await this.calculateMRR(file);
+    const churnRate = await this.calculateChurnRate(file);
+
+    return {
+      mrr,
+      churnRate,
+    };
+  }
+
+  // Este método deve ser implementado para realizar os cálculos
+  async calculateMRR({ data }: FileEntity) {
     const mrrPorMes = new Map<string, number>();
 
     data.forEach((assinatura) => {
@@ -44,24 +54,12 @@ export class MetricsService {
       }
     });
 
-    console.log('MRR por mês:', mrrPorMes);
-
     return {
       ...Object.fromEntries(mrrPorMes),
     };
   }
 
-  async calculateChurnRate(fileId: string) {
-    const { data }: FileEntity = await this._fileRepository.findOne({
-      where: {
-        _id: new ObjectId(fileId),
-      },
-    });
-
-    if (!data) {
-      return {};
-    }
-
+  async calculateChurnRate({ data }: FileEntity) {
     const churnPorMes = new Map<string, number>();
     const totalAssinantesPorMes = new Map<string, number>();
 
@@ -104,8 +102,6 @@ export class MetricsService {
         totalAssinantes > 0 ? (cancelamentos / totalAssinantes) * 100 : 0;
       churnRatePorMes.set(mes, churnRate);
     });
-
-    console.log('Churn Rate por mês:', churnRatePorMes);
 
     return {
       ...Object.fromEntries(churnRatePorMes),
