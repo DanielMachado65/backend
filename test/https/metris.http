@@ -1,4 +1,4 @@
 # @name Metrics
 
-GET http://localhost:3000/metrics/65a9c9807fa02de31fb5171a
+GET {{host}}/metrics/65a9d829080fedbac70e17ee
 Content-Type: application/json

@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { MongoRepository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FileEntity } from './entities/file.entity';
+import { FileEntity, FileEntityStatus } from './entities/file.entity';
 import { Request } from 'express';
 import * as Multer from 'multer';
 
@@ -37,11 +37,14 @@ export class FileUploadService {
 
   async save(file: Multer.File, req: Request) {
     const arquivo = new FileEntity({
+      status: FileEntityStatus.Processing,
       fileName: file.originalname,
       contentLength: file.size,
       contentType: file.mimetype,
       url: `${req.protocol}://${req.get('host')}/files/${file.originalname}`,
     });
+
+    console.log(arquivo);
 
     return await this.fileRepository.save(arquivo);
   }
@@ -57,6 +60,7 @@ export class FileUploadService {
     fileEntity.data = jsonData;
     await this.fileRepository.update(fileEntity.id, {
       data: jsonData,
+      status: FileEntityStatus.Completed,
     });
   }
 
@@ -68,6 +72,7 @@ export class FileUploadService {
         const jsonData = result.data;
         await this.fileRepository.update(fileEntity.id, {
           data: jsonData,
+          status: FileEntityStatus.Completed,
         });
       },
       header: true,

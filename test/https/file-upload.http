@@ -1,6 +1,6 @@
 # @name UploadFile
 
-POST http://localhost:3000/file-upload
+POST {{host}}/file-upload
 Content-Type: multipart/form-data; boundary=----file-boundary
 
 ------file-boundary
@@ -8,8 +8,8 @@ Content-Disposition: form-data; name="text"
 
 title
 ------file-boundary
-Content-Disposition: form-data; name="files"; filename="teste.csv"
+Content-Disposition: form-data; name="files"; filename="teste-mega.csv"
 Content-Type: text/plain
 
-< ./teste.csv
+< ./teste-mega.csv
 ------file-boundary--
