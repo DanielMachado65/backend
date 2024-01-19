@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { MetricsService } from './metrics.service';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -7,8 +7,11 @@ import { ApiTags } from '@nestjs/swagger';
 export class MetricsController {
   constructor(private readonly metricsService: MetricsService) {}
 
-  @Get('mrr-churn')
-  getMRRAndChurn() {
-    return this.metricsService.calculateMRRAndChurn();
+  @Get('/:fileId')
+  async getAllMetrics(@Param('fileId') fileId: string) {
+    return {
+      mrrPorMes: await this.metricsService.calculateMRR(fileId),
+      churn: await this.metricsService.calculateChurnRate(fileId),
+    };
   }
 }
