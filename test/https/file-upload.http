@@ -1,4 +1,4 @@
-# @name Upload File
+# @name UploadFile
 
 POST http://localhost:3000/file-upload
 Content-Type: multipart/form-data; boundary=----file-boundary
