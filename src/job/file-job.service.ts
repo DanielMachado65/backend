@@ -51,8 +51,6 @@ export class FileJobService {
 
   private async _processCSVFile(fileEntity: FileEntity, fileBuffer: Buffer) {
     const fileContent = fileBuffer.toString('utf8');
-    console.log(fileContent);
-
     await Papa.parse(fileContent, {
       complete: async (result) => {
         const jsonData = result.data;
@@ -60,10 +58,6 @@ export class FileJobService {
           data: jsonData,
           status: FileEntityStatus.Completed,
         });
-      },
-      step: (row) => {
-        console.log('Linha lida:', row.data); // Log de cada linha processada
-        // Aqui você pode adicionar lógica adicional se necessário
       },
       header: true,
       skipEmptyLines: true,
