@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AgendaModule } from 'agenda-nest';
-import { JobService } from './job.service';
+import { FileJobService } from './file-job.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { FileEntity } from 'src/file-upload/entities/file.entity';
 
 @Module({
   imports: [
@@ -15,8 +17,9 @@ import { JobService } from './job.service';
       autoStart: false, // default: true
       collection: 'notificationsqueue', // default: notifications-queue (`${queueName}-queue`)
     }),
+    TypeOrmModule.forFeature([FileEntity]),
   ],
-  providers: [JobService],
-  exports: [JobService],
+  providers: [FileJobService],
+  exports: [FileJobService],
 })
 export class JobModule {}
