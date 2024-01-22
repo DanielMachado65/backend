@@ -2,12 +2,12 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { MongoRepository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FileEntity, FileEntityStatus } from './entities/file.entity';
-import { Request } from 'express';
 import * as Multer from 'multer';
 
 import { extname } from 'path';
 import { FileJobService } from 'src/job/file-job.service';
 import { ObjectId } from 'mongodb';
+import { FileEntitySerializer } from './serializer/file-entity.serializer';
 
 @Injectable()
 export class FileUploadService {
@@ -26,37 +26,31 @@ export class FileUploadService {
       where: {
         _id: new ObjectId(fileId),
       },
-      select: ['id', 'status', 'fileName', 'url'],
     });
 
-    return {
-      file,
-    };
+    return new FileEntitySerializer(file);
   }
 
-  async upload(file: Multer.File, req: Request) {
+  async upload(file: Multer.File) {
     const fileExtName: string = extname(file.originalname).toLowerCase();
 
     if (!['.xlsx', '.csv'].includes(fileExtName)) {
       throw new BadRequestException('Formato de arquivo não suportado.');
     }
 
-    const fileEntity = await this.save(file, req);
+    const fileEntity = await this.save(file);
     this._fileJobService.processFile(fileEntity, file, fileExtName);
 
     return fileEntity;
   }
 
-  async save(file: Multer.File, req: Request) {
+  async save(file: Multer.File) {
     const arquivo = new FileEntity({
       status: FileEntityStatus.Processing,
       fileName: file.originalname,
       contentLength: file.size,
       contentType: file.mimetype,
-      url: `${req.protocol}://${req.get('host')}/files/${file.originalname}`,
     });
-
-    console.log(arquivo);
 
     return await this._fileRepository.save(arquivo);
   }

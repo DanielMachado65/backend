@@ -3,15 +3,13 @@ import {
   Post,
   UseInterceptors,
   UploadedFile,
-  Req,
   Get,
   Param,
 } from '@nestjs/common';
-import * as Multer from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { FileUploadService } from './file-upload.service';
-import { Request } from 'express';
+import { FileUploadDto } from './dto/file-upload.dto';
 
 @Controller('file-upload')
 export class FileUploadController {
@@ -19,8 +17,8 @@ export class FileUploadController {
 
   @Post()
   @UseInterceptors(FileInterceptor('files'))
-  async uploadFile(@UploadedFile() file: Multer.File, @Req() req: Request) {
-    return await this.fileUploadService.upload(file, req);
+  async uploadFile(@UploadedFile() file: FileUploadDto) {
+    return await this.fileUploadService.upload(file);
   }
 
   @Get(':fileId')
