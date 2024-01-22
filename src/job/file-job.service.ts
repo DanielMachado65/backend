@@ -2,10 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Define } from 'agenda-nest';
 import { MongoRepository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  FileEntity,
-  FileEntityStatus,
-} from 'src/file-upload/entities/file.entity';
+import { FileEntity, FileEntityStatus } from 'src/file/entities/file.entity';
 
 import * as Multer from 'multer';
 

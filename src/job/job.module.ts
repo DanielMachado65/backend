@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AgendaModule } from 'agenda-nest';
 import { FileJobService } from './file-job.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FileEntity } from 'src/file-upload/entities/file.entity';
+import { FileEntity } from 'src/file/entities/file.entity';
 
 @Module({
   imports: [

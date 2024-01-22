@@ -1,13 +1,13 @@
 # @name GetFile
 
-GET {{host}}/file-upload/65ae7bcac2084c4c895bacf9
+GET {{host}}/file/65ae7bcac2084c4c895bacf9
 Content-Type: application/json
 
 ### 
 
 # @name UploadFile
 
-POST {{host}}/file-upload
+POST {{host}}/file/upload
 Content-Type: multipart/form-data; boundary=----file-boundary
 
 ------file-boundary
