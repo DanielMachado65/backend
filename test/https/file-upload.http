@@ -1,3 +1,10 @@
+# @name GetFile
+
+GET {{host}}/file-upload/65ae6c2a4a220508fe56d01c
+Content-Type: application/json
+
+### 
+
 # @name UploadFile
 
 POST {{host}}/file-upload
