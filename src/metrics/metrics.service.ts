@@ -19,13 +19,18 @@ export class MetricsService {
     });
 
     if (!file.data) {
-      throw new Error('Arquivo não processado');
+      return {
+        status: file.status,
+        mrr: {},
+        churnRate: {},
+      };
     }
 
     const mrr = await this.calculateMRR(file);
     const churnRate = await this.calculateChurnRate(file);
 
     return {
+      status: file.status,
       mrr,
       churnRate,
     };

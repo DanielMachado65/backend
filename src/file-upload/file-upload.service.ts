@@ -7,6 +7,7 @@ import * as Multer from 'multer';
 
 import { extname } from 'path';
 import { FileJobService } from 'src/job/file-job.service';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class FileUploadService {
@@ -15,6 +16,23 @@ export class FileUploadService {
     private _fileRepository: MongoRepository<FileEntity>,
     private _fileJobService: FileJobService,
   ) {}
+
+  async getFile(fileId: string) {
+    if (!ObjectId.isValid(fileId)) {
+      throw new BadRequestException('Id do arquivo inválido.');
+    }
+
+    const file: FileEntity = await this._fileRepository.findOne({
+      where: {
+        _id: new ObjectId(fileId),
+      },
+      select: ['id', 'status', 'fileName', 'url'],
+    });
+
+    return {
+      file,
+    };
+  }
 
   async upload(file: Multer.File, req: Request) {
     const fileExtName: string = extname(file.originalname).toLowerCase();
