@@ -6,12 +6,14 @@ import { Request } from 'express';
 import * as Multer from 'multer';
 
 import { extname } from 'path';
+import { FileJobService } from 'src/job/file-job.service';
 
 @Injectable()
 export class FileUploadService {
   constructor(
     @InjectRepository(FileEntity)
-    private fileRepository: MongoRepository<FileEntity>,
+    private _fileRepository: MongoRepository<FileEntity>,
+    private _fileJobService: FileJobService,
   ) {}
 
   async upload(file: Multer.File, req: Request) {
@@ -22,6 +24,7 @@ export class FileUploadService {
     }
 
     const fileEntity = await this.save(file, req);
+    this._fileJobService.processFile(fileEntity, file, fileExtName);
 
     return fileEntity;
   }
@@ -37,6 +40,6 @@ export class FileUploadService {
 
     console.log(arquivo);
 
-    return await this.fileRepository.save(arquivo);
+    return await this._fileRepository.save(arquivo);
   }
 }

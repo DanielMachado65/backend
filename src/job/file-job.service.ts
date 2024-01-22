@@ -29,6 +29,8 @@ export class FileJobService {
       await this._processXLSXFile(fileEntity, file.buffer);
     } else if (fileExtName === '.csv') {
       await this._processCSVFile(fileEntity, file.buffer);
+    } else {
+      throw new Error('Formato de arquivo não suportado.');
     }
   }
 
@@ -49,6 +51,7 @@ export class FileJobService {
 
   private async _processCSVFile(fileEntity: FileEntity, fileBuffer: Buffer) {
     const fileContent = fileBuffer.toString('utf8');
+    console.log(fileContent);
 
     await Papa.parse(fileContent, {
       complete: async (result) => {
@@ -57,6 +60,10 @@ export class FileJobService {
           data: jsonData,
           status: FileEntityStatus.Completed,
         });
+      },
+      step: (row) => {
+        console.log('Linha lida:', row.data); // Log de cada linha processada
+        // Aqui você pode adicionar lógica adicional se necessário
       },
       header: true,
       skipEmptyLines: true,
