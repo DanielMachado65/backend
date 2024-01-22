@@ -23,7 +23,7 @@ export class FileEntity {
   @Column({ nullable: false }) fileName: string;
   @Column({ nullable: false }) contentLength: number;
   @Column({ nullable: false }) contentType: string;
-  @Column({ nullable: false }) url: string;
+
   // salvar o json data
   @Column({ type: 'jsonb' }) data: any;
 
