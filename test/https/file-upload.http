@@ -1,6 +1,6 @@
 # @name GetFile
 
-GET {{host}}/file-upload/65ae6c2a4a220508fe56d01c
+GET {{host}}/file-upload/65ae7bcac2084c4c895bacf9
 Content-Type: application/json
 
 ### 
