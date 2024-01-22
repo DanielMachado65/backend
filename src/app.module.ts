@@ -3,15 +3,15 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MetricsModule } from './metrics/metrics.module';
-import { FileUploadModule } from './file-upload/file-upload.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { JobModule } from './job/job.module';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
     MetricsModule,
-    FileUploadModule,
+    FileModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
