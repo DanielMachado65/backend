@@ -6,6 +6,7 @@ import { MetricsModule } from './metrics/metrics.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
+import { JobModule } from './job/job.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { join } from 'path';
       synchronize: true,
       logging: true,
     }),
+    JobModule,
   ],
   controllers: [AppController],
   providers: [AppService],
