@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { MongoRepository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FileEntity, FileEntityStatus } from './entities/file.entity';
@@ -27,6 +31,10 @@ export class FileService {
         _id: new ObjectId(fileId),
       },
     });
+
+    if (!file) {
+      throw new NotFoundException('Arquivo não encontrado.');
+    }
 
     return new FileEntitySerializer(file);
   }
