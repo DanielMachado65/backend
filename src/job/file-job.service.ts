@@ -11,6 +11,18 @@ import * as Papa from 'papaparse';
 
 @Injectable()
 export class FileJobService {
+  private fieldMapping = {
+    'quantidade cobranças': 'charge_quantity',
+    'cobrada a cada X dias': 'charged_every_x_days',
+    'data início': 'start_date',
+    status: 'status',
+    'data status': 'status_date',
+    'data cancelamento': 'cancellation_date',
+    valor: 'value',
+    'próximo ciclo': 'next_cycle',
+    'ID assinante': 'subscriber_id',
+  };
+
   constructor(
     @InjectRepository(FileEntity)
     private fileRepository: MongoRepository<FileEntity>,
@@ -55,6 +67,20 @@ export class FileJobService {
           data: jsonData,
           status: FileEntityStatus.Completed,
         });
+      },
+      transformHeader: (header) => {
+        return this.fieldMapping[header] || header.replace(/\s+/g, '_');
+      },
+      transform: (value) => {
+        if (value.match(/\d{1,2}\/\d{1,2}\/\d{2,4}/)) {
+          return new Date(value);
+        }
+
+        if (value.match(/\d+,\d+/)) {
+          return parseFloat(value.replace(',', '.'));
+        }
+
+        return value;
       },
       header: true,
       skipEmptyLines: true,
