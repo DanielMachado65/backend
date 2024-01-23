@@ -23,16 +23,19 @@ export class MetricsService {
         status: file.status,
         mrr: {},
         churnRate: {},
+        groupByStatus: {},
       };
     }
 
     const mrr = await this.calculateMRR(file.id);
     const churnRate = await this.calculateChurnRate(file.id);
+    const groupByStatus = await this.groupByStatus(file.id);
 
     return {
       status: file.status,
       mrr,
       churnRate,
+      groupByStatus,
     };
   }
 
@@ -130,5 +133,35 @@ export class MetricsService {
     });
 
     return churnRates;
+  }
+
+  async groupByStatus(fileId: string) {
+    const aggregationResult = await this._fileRepository
+      .aggregate([
+        {
+          $match: {
+            _id: new ObjectId(fileId),
+          },
+        },
+        {
+          $unwind: {
+            path: '$data',
+          },
+        },
+        {
+          $group: {
+            _id: '$data.status',
+            total: { $sum: 1 },
+          },
+        },
+        {
+          $sort: {
+            total: -1,
+          },
+        },
+      ])
+      .toArray();
+
+    return aggregationResult;
   }
 }
