@@ -23,13 +23,6 @@ export class FileJobService {
     'ID assinante': 'subscriber_id',
   };
 
-  private _DATE_FIELDS = [
-    'start_date',
-    'status_date',
-    'cancellation_date',
-    'next_cycle',
-  ];
-
   constructor(
     @InjectRepository(FileEntity)
     private fileRepository: MongoRepository<FileEntity>,
@@ -51,7 +44,12 @@ export class FileJobService {
   }
 
   private async _processXLSXFile(fileEntity: FileEntity, fileBuffer: Buffer) {
-    const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+    const workbook = XLSX.read(fileBuffer, {
+      type: 'buffer',
+      cellDates: true,
+      cellNF: false,
+      cellText: false,
+    });
 
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
@@ -66,7 +64,7 @@ export class FileJobService {
 
     const jsonData = rawData.map((row: any) => {
       return row.reduce((accumulator, value, index) => {
-        const transformedValue = this._transformValue(value, headers[index]);
+        const transformedValue = this._transformValue(value);
         accumulator[headers[index]] = transformedValue;
         return accumulator;
       }, {});
@@ -99,12 +97,7 @@ export class FileJobService {
     });
   }
 
-  private _transformValue(value, header?) {
-    if (this._DATE_FIELDS.includes(header) && typeof value === 'number') {
-      console.log(value);
-      return this._excelSerialDateToDate(value);
-    }
-
+  private _transformValue(value) {
     if (typeof value === 'string') {
       if (value.match(/\d{1,2}\/\d{1,2}\/\d{2,4}/)) {
         return new Date(value);
@@ -116,11 +109,5 @@ export class FileJobService {
     }
 
     return value;
-  }
-
-  private _excelSerialDateToDate(serial) {
-    const utc_days = Math.floor(serial - 25569);
-    const utc_value = utc_days * 86400;
-    return new Date(utc_value * 1000);
   }
 }
