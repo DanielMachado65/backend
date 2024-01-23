@@ -1,6 +1,6 @@
 # @name Metrics-MRR
 
-GET {{host}}/metrics/65af1afa30d9f34769997c36/mrr
+GET {{host}}/metrics/65afb49a603cd719b5d72037/mrr
 Content-Type: application/json
 
 ### 

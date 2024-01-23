@@ -5,7 +5,7 @@ Content-Type: application/json
 
 ### 
 
-# @name UploadFile
+# @name UploadFile-CSV
 
 POST {{host}}/file/upload
 Content-Type: multipart/form-data; boundary=----file-boundary
@@ -19,4 +19,22 @@ Content-Disposition: form-data; name="files"; filename="teste.csv"
 Content-Type: text/plain
 
 < ./teste.csv
+------file-boundary--
+
+### 
+
+# @name UploadFile-XLSX
+
+POST {{host}}/file/upload
+Content-Type: multipart/form-data; boundary=----file-boundary
+
+------file-boundary
+Content-Disposition: form-data; name="text"
+
+title
+------file-boundary
+Content-Disposition: form-data; name="files"; filename="teste.xlsx"
+Content-Type: text/plain
+
+< ./teste.xlsx
 ------file-boundary--
