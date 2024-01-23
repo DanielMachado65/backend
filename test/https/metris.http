@@ -1,4 +1,4 @@
 # @name Metrics
 
-GET {{host}}/metrics/65ae6c2a4a220508fe56d01c
+GET {{host}}/metrics/65af1afa30d9f34769997c36
 Content-Type: application/json
