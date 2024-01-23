@@ -23,6 +23,13 @@ export class FileJobService {
     'ID assinante': 'subscriber_id',
   };
 
+  private _DATE_FIELDS = [
+    'start_date',
+    'status_date',
+    'cancellation_date',
+    'next_cycle',
+  ];
+
   constructor(
     @InjectRepository(FileEntity)
     private fileRepository: MongoRepository<FileEntity>,
@@ -49,7 +56,21 @@ export class FileJobService {
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
 
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    let rawData: any = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+    const headers = rawData[0].map((header) => {
+      return this.fieldMapping[header] || header.replace(/\s+/g, '_');
+    });
+
+    rawData = rawData.slice(1);
+
+    const jsonData = rawData.map((row: any) => {
+      return row.reduce((accumulator, value, index) => {
+        const transformedValue = this._transformValue(value, headers[index]);
+        accumulator[headers[index]] = transformedValue;
+        return accumulator;
+      }, {});
+    });
 
     fileEntity.data = jsonData;
     await this.fileRepository.update(fileEntity.id, {
@@ -71,20 +92,35 @@ export class FileJobService {
       transformHeader: (header) => {
         return this.fieldMapping[header] || header.replace(/\s+/g, '_');
       },
-      transform: (value) => {
-        if (value.match(/\d{1,2}\/\d{1,2}\/\d{2,4}/)) {
-          return new Date(value);
-        }
-
-        if (value.match(/\d+,\d+/)) {
-          return parseFloat(value.replace(',', '.'));
-        }
-
-        return value;
-      },
+      transform: (value) => this._transformValue(value),
       header: true,
       skipEmptyLines: true,
       dynamicTyping: true,
     });
+  }
+
+  private _transformValue(value, header?) {
+    if (this._DATE_FIELDS.includes(header) && typeof value === 'number') {
+      console.log(value);
+      return this._excelSerialDateToDate(value);
+    }
+
+    if (typeof value === 'string') {
+      if (value.match(/\d{1,2}\/\d{1,2}\/\d{2,4}/)) {
+        return new Date(value);
+      }
+
+      if (value.match(/\d+,\d+/)) {
+        return parseFloat(value.replace(',', '.'));
+      }
+    }
+
+    return value;
+  }
+
+  private _excelSerialDateToDate(serial) {
+    const utc_days = Math.floor(serial - 25569);
+    const utc_value = utc_days * 86400;
+    return new Date(utc_value * 1000);
   }
 }
