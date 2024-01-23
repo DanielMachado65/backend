@@ -26,8 +26,8 @@ export class MetricsService {
       };
     }
 
-    const mrr = await this.calculateMRR(file);
-    const churnRate = await this.calculateChurnRate(file);
+    const mrr = await this.calculateMRR(file.id);
+    const churnRate = await this.calculateChurnRate(file.id);
 
     return {
       status: file.status,
@@ -36,103 +36,99 @@ export class MetricsService {
     };
   }
 
-  // Este método deve ser implementado para realizar os cálculos
-  async calculateMRR({ data }: FileEntity) {
-    const mrrPorMes = new Map<string, number>();
+  async calculateMRR(fileId: string) {
+    const aggregationResult = await this._fileRepository
+      .aggregate([
+        {
+          $match: {
+            _id: new ObjectId(fileId),
+          },
+        },
+        {
+          $unwind: {
+            path: '$data',
+          },
+        },
+        {
+          $match: {
+            'data.status': 'Ativa',
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: '$data.start_date' },
+              month: { $month: '$data.start_date' },
+            },
+            totalValue: {
+              $sum: '$data.value',
+            },
+          },
+        },
+        {
+          $sort: {
+            '_id.year': 1,
+            '_id.month': 1,
+          },
+        },
+      ])
+      .toArray();
 
-    data.forEach((assinatura) => {
-      const valor = parseFloat(assinatura.valor.toString().replace(',', '.'));
-      const frequenciaCobrancaDias = assinatura['cobrada a cada X dias'];
-      const mesEAno = this.extrairMesEAno(
-        assinatura['data início'] || assinatura['próximo ciclo'],
-      );
-
-      let valorMensal = valor;
-      if (frequenciaCobrancaDias === 365) {
-        valorMensal = valor / 12;
-      }
-
-      if (mrrPorMes.has(mesEAno)) {
-        mrrPorMes.set(mesEAno, mrrPorMes.get(mesEAno) + valorMensal);
-      } else {
-        mrrPorMes.set(mesEAno, valorMensal);
-      }
+    const transformedData = aggregationResult.map((item: any) => {
+      return {
+        period: `${item._id.month.toString().padStart(2, '0')}/${item._id.year}`,
+        totalValue: item.totalValue,
+      };
     });
 
-    return {
-      ...Object.fromEntries(mrrPorMes),
-    };
+    return transformedData;
   }
 
-  async calculateChurnRate({ data }: FileEntity) {
-    const churnPorMes = new Map<string, number>();
-    const totalAssinantesPorMes = new Map<string, number>();
+  async calculateChurnRate(fileId: string) {
+    const aggregationResult = await this._fileRepository
+      .aggregate([
+        {
+          $match: {
+            _id: new ObjectId(fileId),
+          },
+        },
+        {
+          $unwind: {
+            path: '$data',
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: '$data.start_date' },
+              month: { $month: '$data.start_date' },
+            },
+            total: { $sum: 1 },
+            cancellations: {
+              $sum: {
+                $cond: [{ $eq: ['$data.status', 'Cancelada'] }, 1, 0],
+              },
+            },
+          },
+        },
+        {
+          $sort: {
+            '_id.year': 1,
+            '_id.month': 1,
+          },
+        },
+      ])
+      .toArray();
 
-    data.forEach((assinatura) => {
-      const mesEAno = this.extrairMesEAno(
-        assinatura['data início'] || assinatura['próximo ciclo'],
-      );
-
-      // Contar total de assinantes no início de cada mês
-      if (totalAssinantesPorMes.has(mesEAno)) {
-        totalAssinantesPorMes.set(
-          mesEAno,
-          totalAssinantesPorMes.get(mesEAno) + 1,
-        );
-      } else {
-        totalAssinantesPorMes.set(mesEAno, 1);
-      }
-
-      // Contar cancelamentos por mês
-      if (assinatura.status !== 'Ativa' && assinatura['data cancelamento']) {
-        const mesCancelamento = this.extrairMesEAno(
-          assinatura['data cancelamento'],
-        );
-
-        if (churnPorMes.has(mesCancelamento)) {
-          churnPorMes.set(
-            mesCancelamento,
-            churnPorMes.get(mesCancelamento) + 1,
-          );
-        } else {
-          churnPorMes.set(mesCancelamento, 1);
-        }
-      }
-    });
-
-    const churnRatePorMes = new Map<string, number>();
-    churnPorMes.forEach((cancelamentos, mes) => {
-      const totalAssinantes = totalAssinantesPorMes.get(mes) || 0;
+    const churnRates = aggregationResult.map((item: any) => {
       const churnRate =
-        totalAssinantes > 0 ? (cancelamentos / totalAssinantes) * 100 : 0;
-      churnRatePorMes.set(mes, churnRate);
+        item.total > 0 ? (item.cancellations / item.total) * 100 : 0;
+      return {
+        period: `${item._id.month.toString().padStart(2, '0')}/${item._id.year}`,
+        churnRate,
+      };
     });
 
-    return {
-      ...Object.fromEntries(churnRatePorMes),
-    };
-  }
-
-  private extrairMesEAno(dataString: string): string {
-    // Convertendo 'dd/mm/yyyy' ou 'dd/mm/yy' para 'mm/dd/yyyy'
-    const partes = dataString.split('/');
-    const dia = partes[0];
-    const mes = partes[1];
-    let ano = partes[2];
-
-    // Convertendo ano de dois dígitos para quatro dígitos
-    if (ano.length === 2) {
-      ano = '20' + ano; // Isso funciona para anos a partir do ano 2000
-    }
-
-    // Criando um objeto Date
-    const data = new Date(`${mes}/${dia}/${ano}`);
-
-    // Extraindo mês e ano
-    const mesFormatado = data.getMonth() + 1; // getMonth() retorna 0-11
-    const anoFormatado = data.getFullYear();
-
-    // Formatando como 'mm/yyyy'
-    return `${mesFormatado}/${anoFormatado}`;
+    return churnRates;
   }
 }
