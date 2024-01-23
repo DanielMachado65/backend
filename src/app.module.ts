@@ -17,7 +17,11 @@ import { FileModule } from './file/file.module';
     }),
     TypeOrmModule.forRoot({
       type: 'mongodb',
-      url: process.env.MONGO_URL,
+      host: 'localhost',
+      port: 27017,
+      database: 'reports',
+      username: 'admin',
+      password: 'senha',
       entities: [join(__dirname, '**/**.entity{.ts,.js}')],
       autoLoadEntities: true,
       synchronize: true,
