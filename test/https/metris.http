@@ -1,4 +1,25 @@
-# @name Metrics
+# @name Metrics-MRR
 
-GET {{host}}/metrics/65af1afa30d9f34769997c36
+GET {{host}}/metrics/65af1afa30d9f34769997c36/mrr
+Content-Type: application/json
+
+### 
+
+# @name Metrics-CHURN
+
+GET {{host}}/metrics/65af1afa30d9f34769997c36/churn-rate
+Content-Type: application/json
+
+### 
+
+# @name Metrics-Group-by-Status
+
+GET {{host}}/metrics/65af1afa30d9f34769997c36/group-by-status
+Content-Type: application/json
+
+###
+
+# @name Metrics-Group-by-Status
+
+GET {{host}}/metrics/65af1afa30d9f34769997c36/group-by-users-per-value
 Content-Type: application/json

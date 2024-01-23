@@ -11,34 +11,6 @@ export class MetricsService {
     private _fileRepository: MongoRepository<FileEntity>,
   ) {}
 
-  async getMetrics(fileId: string) {
-    const file: FileEntity = await this._fileRepository.findOne({
-      where: {
-        _id: new ObjectId(fileId),
-      },
-    });
-
-    if (!file.data) {
-      return {
-        status: file.status,
-        mrr: {},
-        churnRate: {},
-        groupByStatus: {},
-      };
-    }
-
-    const mrr = await this.calculateMRR(file.id);
-    const churnRate = await this.calculateChurnRate(file.id);
-    const groupByStatus = await this.groupByStatus(file.id);
-
-    return {
-      status: file.status,
-      mrr,
-      churnRate,
-      groupByStatus,
-    };
-  }
-
   async calculateMRR(fileId: string) {
     const aggregationResult = await this._fileRepository
       .aggregate([
@@ -163,5 +135,42 @@ export class MetricsService {
       .toArray();
 
     return aggregationResult;
+  }
+
+  async groupByUsersPerValue(fileId: string) {
+    const aggregationResult = await this._fileRepository
+      .aggregate([
+        {
+          $match: {
+            _id: new ObjectId(fileId),
+          },
+        },
+        {
+          $unwind: {
+            path: '$data',
+          },
+        },
+        {
+          $group: {
+            _id: '$data.subscriber_id',
+            totalSpent: { $sum: '$data.value' },
+          },
+        },
+        {
+          $sort: {
+            totalSpent: -1,
+          },
+        },
+      ])
+      .toArray();
+
+    const transformedData = aggregationResult.map((item: any) => {
+      return {
+        subscriberId: item._id,
+        totalSpent: item.totalSpent,
+      };
+    });
+
+    return transformedData;
   }
 }
