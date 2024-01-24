@@ -8,7 +8,7 @@ import { FileEntity } from 'src/file/entities/file.entity';
   imports: [
     AgendaModule.forRoot({
       db: {
-        address: 'mongodb://admin:senha@localhost:27017/reports',
+        address: 'mongodb://admin:senha@mongo:27017/reports',
         collection: 'agendaJobs',
       },
     }),

@@ -17,7 +17,7 @@ import { FileModule } from './file/file.module';
     }),
     TypeOrmModule.forRoot({
       type: 'mongodb',
-      host: 'localhost',
+      host: 'mongo',
       port: 27017,
       database: 'reports',
       username: 'admin',
